@@ -1,0 +1,66 @@
+
+Enter your responses inline below and push this file to your private GitHub
+repository.
+
+
+1. Assume I plan to use the friend_overlap function above to quantify the
+similarity of two users. E.g., because 238 is larger than 1, I conclude that
+Jill Stein and Gary Johnson are more similar than Hillary Clinton and Donald
+Trump.
+
+How is this approach misleading? How might you fix it?
+
+This approach is misleading because we don't take into account the total number of follower for each profile.
+For instance, if we take 2 different users that have around a thousand follower but 8 followers in common and 2 different users that have 10 followers each but 8 followers in common.
+The two overlapping execution will provide us the same result, however the similarities among though couples are generally different (the second couple will have more correlation).
+In order to fix it, it will be interesting to compute a ration parameter thanks to the friend_overlap result and the total of followers for each candidate. We can also check correlation in the other way thanks to Jaccard distance for instance, which will take common candidate (instead of SMC distance).
+
+
+
+
+
+
+ 
+
+2. Looking at the output of your followed_by_hillary_and_donald function, why
+do you think this user is followed by both Hilary Clinton and Donald Trump,
+who are rivals? Do some web searches to see if you can find out more
+information.
+
+The user followed by Hilary Clinton and Donald Trump is the White House which is the main source of information about the institutional government in place. The fact that the two candidates are rival doesn't have to go again the fact that they both follow the White House account.
+Moreover, if one of them didn't follow this account it could have been seen as a lake of interest about the government and the institution during the campaign which could lead to a bad reputation as a candidate. 
+
+
+
+
+
+
+3. There is a big difference in how many accounts each candidate follows (Gary
+Johnson follows over 3K accounts, while Donald Trump follows less than
+50). Why do you think this is? How might that affect our analysis?
+
+It really depends on the usage of Twitter for each person, some people will tend to use Twitter as a way to inform themselves in different fields and others will tend to use it to share their feelings with their community and friend (such as Donald Trump). It will affect our analysis if we want to base them on a number of followers that the person has. Moreover, if we want to study the correlation between users, this kind of analysis can be hard if the person has few follower and we will have to use other metrics to find useful information among our study.
+
+
+
+4. The follower graph we've collected is incomplete. To expand it, we would
+have to also collect the list of accounts followed by each of the
+friends. That is, for each user X that Donald Trump follows, we would have to
+also collect all the users that X follows. Assuming we again use the API call
+https://dev.twitter.com/rest/reference/get/friends/ids, how many requests will
+we have to make? Given how Twitter does rate limiting
+(https://dev.twitter.com/rest/public/rate-limiting), approximately how many
+minutes will it take to collect this data?
+
+To answer this question we can consider that each of people that candidate follow has less than 5000 follows (in order to consider on request per follows (the limit for the following request is 5000))
+
+In our algorithm we saw the current number of follows for each candidate :
+DrJillStein 1650
+GovGaryJohnson 3487
+HillaryClinton 769
+realDonaldTrump 45
+
+Which gives us a total of 5,951(total number of followers) 
+The API web site stands that : "If a method allows for 15 requests per rate limit window, then it allows 15 requests per window per access token."
+This result gives us arround 400 queries limitation which gives us 100 hours of waiting (which is more than 4 days). We can reduce this time by erasing duplicate requests (those which are common to some candidates)
+

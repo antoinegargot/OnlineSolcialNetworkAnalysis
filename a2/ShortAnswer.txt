@@ -1,0 +1,66 @@
+1. Looking at the top errors printed by get_top_misclassified, name two ways you would modify your classifier to improve accuracy (it could be features, tokenization, or something else.)
+
+
+In order to improve our model, we can work on vocabulary. We already work on sparse features with min_freq parameter. However, we didn't erase stopword from our corpus. We can see that those stops words generated some important features such as token_pair=is__so or token_pair=about__the for negative words or also token_pair=it__is or token_pair=the__and for positive words. Those stops words generated features that had a huge impact on the final classification. We will try to implement a new tokenize function that will not take sparse word from corpus into account. 
+
+An other way to improve our classification model will be by using the Term-Frequency Inverse-Document-Frequency weightening for each feature in the sparse matrix. With this new way of computing weight, the classifier will give more strenght to relevant words and features for sentiment classification.
+
+
+2. Implement one of the above methods. How did it affect the results?
+
+
+Here is a new implementation of the tokenize function which take into account the stopwords :
+
+  
+def tokenize_without_stopwords(doc, keep_internal_punct=False):
+  
+    stopwords = ["a", "about", "above", "above", "across", "after", "afterwards", "again", "against", "all", "almost", "alone", "along", "already", "also","although","always","am","among", "amongst", "amoungst", "amount",  "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "around", "as",  "at", "back","be","became", "because","become","becomes", "becoming", "been", "before", "beforehand", "behind", "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", "can", "cannot", "cant", "co", "con", "could", "couldnt", "cry", "de", "describe", "detail", "do", "done", "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", "front", "full", "further", "get", "give", "go", "had", "has", "hasnt", "have", "he", "hence", "her", "here", "hereafter", "hereby", "herein", "hereupon", "hers", "herself", "him", "himself", "his", "how", "however", "hundred", "ie", "if", "in", "inc", "indeed", "interest", "into", "is", "it", "its", "itself", "keep", "last", "latter", "latterly", "least", "less", "ltd", "made", "many", "may", "me", "meanwhile", "might", "mill", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "myself", "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", "nor", "not", "nothing", "now", "nowhere", "of", "off", "often", "on", "once", "one", "only", "onto", "or", "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own","part", "per", "perhaps", "please", "put", "rather", "re", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", "she", "should", "show", "side", "since", "sincere", "six", "sixty", "so", "some", "somehow", "someone", "something", "sometime", "sometimes", "somewhere", "still", "such", "system", "take", "ten", "than", "that", "the", "their", "them", "themselves", "then", "thence", "there", "thereafter", "thereby", "therefore", "therein", "thereupon", "these", "they", "thickv", "thin", "third", "this", "those", "though", "three", "through", "throughout", "thru", "thus", "to", "together", "too", "top", "toward", "towards", "twelve", "twenty", "two", "un", "under", "until", "up", "upon", "us", "very", "via", "was", "we", "well", "were", "what", "whatever", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "whereupon", "wherever", "whether", "which", "while", "whither", "who", "whoever", "whole", "whom", "whose", "why", "will", "with", "within", "without", "would", "yet", "you", "your", "yours", "yourself", "yourselves", "the"]
+    token_without_stopwords = []
+    
+    punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+    if keep_internal_punct:
+        tokens =' '.join(word.strip(punctuation) for word in doc.lower().split() if word.strip(punctuation))
+    else:
+        tokens = ' '.join(re.split("[" + string.punctuation + "]+", doc.lower()))
+    tokens = tokens.split(' ')
+    if '' in tokens:
+        tokens = [x for x in tokens if x != '']
+
+    for token in tokens:
+        if token not in stopwords:
+            token_without_stopwords.append(token)
+    return np.array(token_without_stopwords)
+
+ By using this new function, we have more relevant result for features and a better accuracy of our classifier (3 percent):
+
+Mean Accuracies per Setting:
+features=token_features token_pair_features lexicon_features: 0.74208
+features=token_features token_pair_features: 0.73875
+features=token_features lexicon_features: 0.72833
+features=token_features: 0.71917
+min_freq=2: 0.71143
+punct=False: 0.70321
+min_freq=5: 0.69875
+punct=True: 0.69655
+min_freq=10: 0.68946
+features=token_pair_features lexicon_features: 0.68833
+features=lexicon_features: 0.65125
+features=token_pair_features: 0.63125
+
+TOP COEFFICIENTS PER CLASS:
+negative words:
+neg_words: -1.02183
+token=waste: -0.63381
+token_pair=looks__like: -0.61920
+token=worst: -0.57782
+token_pair=waste__time: -0.48672
+
+positive words:
+token_pair=i__d: 0.58138
+token=worth: 0.55066
+token=excellent: 0.53348
+token=great: 0.53272
+pos_words: 0.52986
+testing accuracy=0.765000
+
+
